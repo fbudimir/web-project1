@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter, useSearchParams } from "next/navigation";
-
 import Image from "next/image";
-
 import axios from "axios";
 
 interface TicketData {
@@ -16,13 +14,13 @@ interface TicketData {
 	createdAt: string;
 }
 
-export default function TicketPage() {
+function TicketContent() {
 	const { user, isLoading } = useUser();
 	const [ticket, setTicket] = useState<TicketData | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
-	const [queryParameters] = useSearchParams();
-	const id = queryParameters ? queryParameters[1] : "";
+	const searchParams = useSearchParams();
+	const id = searchParams.get("id");
 
 	useEffect(() => {
 		if (!isLoading && !user) {
@@ -35,22 +33,18 @@ export default function TicketPage() {
 
 		if (!id) {
 			router.push("/404");
+			return;
 		}
 
 		const fetchTicketData = async () => {
 			try {
 				const response = await axios(`/api/get?id=${id}`);
 
-				if (response.data.ticket && response.status !== 200) {
-					throw new Error("Failed to fetch ticket data");
-				}
-
-				if (!ticket && !response.data.ticket) {
+				if (response.status === 200 && response.data.ticket) {
+					setTicket(response.data.ticket);
+				} else {
 					router.push("/404");
 				}
-
-				const data = await response.data.ticket;
-				setTicket(data);
 			} catch (error) {
 				setError("Failed to fetch ticket data");
 			}
@@ -91,8 +85,7 @@ export default function TicketPage() {
 						if (key === "updated_at" && typeof value === "string") {
 							return (
 								<p key={key}>
-									<strong>Updated at:</strong>{" "}
-									{new Date(ticket.createdAt).toString()}
+									<strong>Updated at:</strong> {new Date(value).toString()}
 								</p>
 							);
 						}
@@ -130,5 +123,13 @@ export default function TicketPage() {
 				</p>
 			</div>
 		</div>
+	);
+}
+
+export default function TicketPage() {
+	return (
+		<Suspense fallback={<p>Loading...</p>}>
+			<TicketContent />
+		</Suspense>
 	);
 }
