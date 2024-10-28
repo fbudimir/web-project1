@@ -65,7 +65,9 @@ export async function POST(request: Request) {
 			});
 
 		const qrCodeImage = await generateQR(
-			`https://your-app.com/tickets/${ticketId}`
+			`${
+				process.env.RENDER_EXTERNAL_URL || process.env.DOMAIN_URL
+			}/ticket/${ticketId}`
 		);
 
 		return NextResponse.json({ qrCodeImage }, { status: 201 });
