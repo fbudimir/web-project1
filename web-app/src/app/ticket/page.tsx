@@ -39,7 +39,7 @@ export default function TicketPage() {
 
 		const fetchTicketData = async () => {
 			try {
-				const response = await axios(`/api/${id}`);
+				const response = await axios(`/api/get?id=${id}`);
 
 				if (response.data.ticket && response.status !== 200) {
 					throw new Error("Failed to fetch ticket data");
