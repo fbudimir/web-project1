@@ -7,7 +7,10 @@ import { authMiddleware } from "./lib/authMiddleware.js";
 dotenv.config();
 
 const app = express();
-const DOMAIN_URL = process.env.DOMAIN_URL || "http://localhost:4000";
+const DOMAIN_URL =
+	process.env.RENDER_EXTERNAL_URL ||
+	process.env.DOMAIN_URL ||
+	"http://localhost:4000";
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());

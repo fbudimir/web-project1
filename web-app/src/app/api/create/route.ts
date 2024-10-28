@@ -53,7 +53,10 @@ export async function POST(request: Request) {
 			},
 		};
 
-		let ticketId = await axios(`${process.env.BE_URL}/tickets/`, options2)
+		let ticketId = await axios(
+			`${process.env.BE_URL || "http://localhost:4000"}/tickets/`,
+			options2
+		)
 			.then((response) => {
 				return response.data["ticketId" as keyof typeof response.data];
 			})
